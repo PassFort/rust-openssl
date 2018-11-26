@@ -300,6 +300,16 @@ cfg_if! {
     }
 }
 
+// This implementation of native OpenSSL name verification seems
+// to fail when faced with some types of certificate.
+//
+// For example, Cloudflare-issued certs with wildcard Subject Alternative Names
+// don't seem to be validated correctly, however the rust implementation used
+// before OpenSSL 1.0.2 still works as expected.
+//
+// Commenting this conditional config out falls us back to the old behaviour
+// until we can figure out a proper fix.
+/*
 cfg_if! {
     if #[cfg(any(ossl102, libressl261))] {
         fn setup_verify(ctx: &mut SslContextBuilder) {
@@ -317,6 +327,7 @@ cfg_if! {
             }
         }
     } else {
+*/
         fn setup_verify(ctx: &mut SslContextBuilder) {
             ctx.set_verify_callback(SslVerifyMode::PEER, verify::verify_callback);
         }
@@ -503,5 +514,5 @@ cfg_if! {
                 }
             }
         }
-    }
-}
+//    }
+//}
